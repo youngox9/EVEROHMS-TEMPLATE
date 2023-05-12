@@ -70,6 +70,64 @@ export const VALIDATIONS = {
   }),
 };
 
+export function sumNumbers(numbers = []) {
+  const maxDecimalPlaces = Math.max(
+    ...numbers.map((num) => {
+      const [, decimalPart] = String(num).split(".");
+      return decimalPart ? decimalPart.length : 0;
+    })
+  );
+  const paddedNumbers = numbers.map((num) => {
+    const [integerPart, decimalPart = ""] = String(num).split(".");
+    const paddedDecimalPart = decimalPart.padEnd(maxDecimalPlaces, "0");
+    return `${integerPart}.${paddedDecimalPart}`;
+  });
+
+  const sum = paddedNumbers.reduce((acc, cur) => {
+    return add(acc, cur);
+  }, 0);
+
+  function add(num1, num2) {
+    const [int1, dec1] = String(num1).split(".");
+    const [int2, dec2] = String(num2).split(".");
+    const carry = 10 ** maxDecimalPlaces;
+    const intSum = Number(int1) + Number(int2);
+    const decSum = (Number(dec1) || 0) + (Number(dec2) || 0);
+    const totalSum = intSum * carry + decSum;
+    return (totalSum / carry).toFixed(maxDecimalPlaces);
+  }
+
+  return sum;
+}
+
+export const getSummaries = (param) => {
+  const { columns, data } = param;
+
+  const result = columns.map((col, idx) => {
+    if (idx === 0) return "Total Cost";
+
+    const key = columns?.[idx]?.property || "";
+
+    const needShowTotal = !data.some((o) => {
+      const v = o?.[key];
+      const res = v && !/^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$/.test(v);
+      return res;
+    });
+
+    if (!needShowTotal) return "-";
+    if (key) {
+      const numbers = data?.map((curr) => {
+        const colValue = parseFloat(curr?.[key] || 0);
+        return colValue;
+      });
+      const sum = sumNumbers(numbers);
+      return sum;
+    }
+  });
+
+  return result;
+};
+
 export function useState(initialState) {
   const state = ref(initialState);
   const setState = (newState) => {
