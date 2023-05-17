@@ -14,6 +14,7 @@ import { logEnv } from "@/utils";
 import "@/socket";
 
 import TableWithPagination from "@/components/TableWithPagination.vue";
+import Autocomplete from "@/components/Autocomplete.vue";
 
 const app = createApp(App);
 app.use(i18n);
@@ -26,6 +27,8 @@ Object.entries({ ...ElementIcons }).forEach(([name, component]) =>
   app.component(name, component)
 );
 app.component("TableWithPagination", TableWithPagination);
+app.component("Autocomplete", Autocomplete);
+
 app.component("Layout", Layout);
 app.mount("#app");
 

@@ -1,5 +1,5 @@
 <template>
-  <Layout :auth="true"> 123 </Layout>
+  <Layout :auth="true"></Layout>
 </template>
 <script setup>
 import { ref, computed, onMounted } from "vue";
