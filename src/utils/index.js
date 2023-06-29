@@ -254,3 +254,22 @@ export const logEnv = () => {
     URL_CONFIG
   );
 };
+
+
+/**
+ * 
+ * @param {} list 
+ * @param {*} columnsSetting 
+ * @returns 
+ */
+export function useDynamicColumns(list, columnsSetting = {}) {
+  const columns = computed(() => {
+    try {
+      return Object.keys(list?.value?.[0] || {}) || [];
+    } catch (e) {
+      return [];
+    }
+  });
+  return { columns };
+}
+
