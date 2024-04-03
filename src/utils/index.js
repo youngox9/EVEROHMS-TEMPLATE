@@ -89,6 +89,48 @@ export const VALIDATIONS = {
     },
     trigger: ["blur", "change"],
   }),
+  dateRange: (props = {}) => ({
+    required: true,
+    validator: async (rule, value, callback) => {
+      const res = value?.[0] && value?.[1];
+      if (res) {
+        callback();
+      } else {
+        callback(new Error("日期區間錯誤"));
+      }
+    },
+    trigger: ["blur", "change"],
+  }),
+  dateIsBefore: (props = {}) => ({
+    required: true,
+    validator: async (rule, value, callback) => {
+      const form = props.form();
+      let date1 = moment(value);
+      let date2 = moment(form?.[props.key]);
+      const res = date2.isBefore(date1);
+      if (res) {
+        callback();
+      } else {
+        callback(new Error("開始日期須小於結束日期"));
+      }
+    },
+    trigger: ["blur", "change"],
+  }),
+  dateIsAfter: (props = {}) => ({
+    required: true,
+    validator: async (rule, value, callback) => {
+      const form = props.form();
+      let date1 = moment(value);
+      let date2 = moment(form?.[props.key]);
+      const res = date2.isAfter(date1);
+      if (res) {
+        callback();
+      } else {
+        callback(new Error("結束日期須大於開始日期"));
+      }
+    },
+    trigger: ["blur", "change"],
+  }),
 };
 
 export function sumNumbers(numbers = []) {
@@ -350,3 +392,19 @@ export const logEnv = () => {
     URL_CONFIG
   );
 };
+
+export function disableBeforeToday(val) {
+  let result = true;
+  const targetDate = moment(val);
+  const today = moment();
+  const formattedToday = today.format("YYYY-MM-DD");
+  const formattedTargetDate = targetDate.format("YYYY-MM-DD");
+  if (formattedTargetDate < formattedToday) {
+    result = true;
+  } else {
+    result = false;
+  }
+  return result;
+}
+
+export const DATETIME_FORMAT = "YYYY-MM-DD HH:mm";
