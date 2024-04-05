@@ -102,7 +102,6 @@ const [pageConfig, setPageConfig] = useState(INITIAL_PAGECONFIG);
 async function onPageChange(config) {
   const newConfig = { ...pageConfig.value, ...config };
   setPageConfig(newConfig);
-  // console.log(">>>>", newConfig, ">>> old:", pageConfig.value);
   await nextTick();
   props.onChange(newConfig);
 }
@@ -133,26 +132,4 @@ defineExpose({
 });
 </script>
 
-<style lang="scss">
-.page-size-select {
-  width: 90px;
-  .el-input-group__prepend,
-  .el-input-group__append {
-    margin: 0;
-    padding: 0 4px;
-    border-radius: 0;
-    font-size: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .el-input__inner {
-    text-align: center;
-    &::-webkit-outer-spin-button,
-    &::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-  }
-}
-</style>
+<style lang="scss"></style>

@@ -15,18 +15,32 @@
     </div>
     <div class="nav-wrap">
       <div v-if="isLogin && showSider" class="nav nav-left" ref="navLeft">
-        <el-input
-          size="small"
-          v-model="searchKeyword"
-          type="string"
-          placeholder="搜尋關鍵字"
-          :suffix-icon="Search"
-          class="menu-search"
-          clearable
-        />
-        <div class="menu" v-if="navbarList.length" :style="{ width: '100%' }">
-          <MenuItem v-for="item in navbarList" :item="item" />
-        </div>
+        <vue-resizable
+          :active="handlers"
+          :minWidth="200"
+          :width="memoNavbarWidth"
+          @resize:move="eHandler"
+          @resize:end="eHandler"
+        >
+          <div class="nav-left-scroll">
+            <el-input
+              size="small"
+              v-model="searchKeyword"
+              type="string"
+              placeholder="搜尋關鍵字"
+              :suffix-icon="Search"
+              class="menu-search"
+              clearable
+            />
+            <div
+              class="menu"
+              v-if="navbarList.length"
+              :style="{ width: '100%' }"
+            >
+              <MenuItem v-for="item in navbarList" :item="item" />
+            </div>
+          </div>
+        </vue-resizable>
       </div>
     </div>
   </div>
@@ -38,6 +52,8 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { Search } from "@element-plus/icons-vue";
+import VueResizable from "vue-resizable";
+import { useLocalStorage } from "@vueuse/core";
 
 import {
   GlobalButton,
@@ -52,6 +68,13 @@ const { t } = useI18n();
 const store = useStore();
 const router = useRouter();
 const searchKeyword = ref("");
+const handlers = ref(["r"]);
+
+const memoNavbarWidth = useLocalStorage("memoNavbarWidth", 200);
+
+function eHandler(data) {
+  memoNavbarWidth.value = data.width;
+}
 
 const navbarList = computed(() => {
   const navbarList = store?.state?.global?.navbarList;
@@ -95,4 +118,12 @@ const isMenuOpen = computed(() => {
 const isLogin = computed(() => {
   return !!store?.state?.global?.profile?.accessToken || false;
 });
+
+const textColor = ref("red");
 </script>
+
+<style lang="scss">
+body {
+  color: var(--text-color);
+}
+</style>

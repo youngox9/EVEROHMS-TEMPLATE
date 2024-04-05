@@ -17,6 +17,8 @@ import TableWithPagination from "@/components/TableWithPagination.vue";
 import Autocomplete from "@/components/Autocomplete.vue";
 import DepDropdown from "@/components/DepDropdown.vue";
 import DynamicField from "@/components/DynamicField.vue";
+import FormSiteFooter from "@/components/FormSiteFooter.vue";
+
 import * as FaIcons from "oh-vue-icons/icons/fa";
 import * as MdIcons from "oh-vue-icons/icons/md";
 import * as CoIcons from "oh-vue-icons/icons/co";
@@ -56,6 +58,7 @@ app.component("TableWithPagination", TableWithPagination);
 app.component("Autocomplete", Autocomplete);
 app.component("DepDropdown", DepDropdown);
 app.component("DynamicField", DynamicField);
+app.component("FormSiteFooter", FormSiteFooter);
 
 app.component("Layout", Layout);
 app.mount("#app");

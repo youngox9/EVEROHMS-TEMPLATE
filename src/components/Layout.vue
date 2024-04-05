@@ -1,6 +1,6 @@
 <template>
-  <Navbar />
   <div class="container">
+    <Navbar />
     <div class="content"><slot v-if="isReady" /></div>
   </div>
 </template>
