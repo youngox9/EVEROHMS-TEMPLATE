@@ -1,0 +1,17 @@
+{
+  "env": {
+    "browser": true,
+    "node": true,
+    "vue/setup-compiler-macros": true
+  },
+  "extends": [
+    "plugin:vue/base",
+    "eslint:recommended"
+    // "plugin:vue/vue3-recommended"
+  ],
+  "rules": {
+    "no-unused-vars": ["warn"],
+    "vue/valid-v-for": ["off"],
+    "vue/max-attributes-per-line": ["off"]
+  }
+}
