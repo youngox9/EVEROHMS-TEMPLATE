@@ -22,13 +22,15 @@ const props = defineProps({
 
 const src = ref(props?.value);
 
-const qrcode = useQRCode(src || '1');
+const qrcode = useQRCode(src || '1', {
+  margin: 0,
+});
 
 watch(
   () => props.modelValue,
   (val, prev) => {
     try {
-      src.value = val.replace(/\t/g, ' ');
+      src.value = val.replace(/\t/g, '	');
     } catch (e) {
       console.log(e);
       src.value = val;

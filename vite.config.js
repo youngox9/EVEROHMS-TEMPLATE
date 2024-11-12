@@ -1,11 +1,11 @@
-import { defineConfig } from "vite";
-import vue from "@vitejs/plugin-vue";
-import vitePluginRequire from "vite-plugin-require";
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import vitePluginRequire from 'vite-plugin-require';
 // import legacy from "@vitejs/plugin-legacy";
-import path, { resolve } from "path";
+import path, { resolve } from 'path';
 
 const env = process.env.NODE_ENV;
-const isDev = env === "development";
+const isDev = env === 'development';
 
 const VITE_DEFAULT_SETTING = {
   development: {
@@ -34,19 +34,25 @@ export default defineConfig({
   ],
   server: {
     //使用IP能访问
-    host: "0.0.0.0",
+    host: '0.0.0.0',
   },
-  base: "./",
+  base: './',
   resolve: {
     alias: {
-      "@": resolve(__dirname, "./src"),
+      '@': resolve(__dirname, './src'),
       vue: path.resolve(
         __dirname,
-        "node_modules/" + "vue/dist/vue.runtime.esm-browser.js"
+        'node_modules/' + 'vue/dist/vue.runtime.esm-browser.js'
       ),
     },
   },
-  css: {},
+  css: {
+    preprocessorOptions: {
+      scss: {
+        implementation: require('sass'),
+      },
+    },
+  },
 
   preview: {
     cors: true,

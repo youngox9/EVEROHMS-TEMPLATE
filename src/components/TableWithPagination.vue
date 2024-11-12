@@ -24,7 +24,7 @@
         <template #append>筆</template>
       </el-autocomplete>
       <el-pagination
-        small
+        size="small"
         background
         v-model:currentPage="pageConfig.page"
         v-model:page-size="pageConfig.pageSize"
@@ -54,7 +54,7 @@
 
   <el-pagination
     v-if="list && list?.length && showPagination"
-    small
+    size="small"
     class="pagination-top"
     :style="{ justifyContent: 'flex-end', marginTop: '12px' }"
     background
@@ -77,10 +77,10 @@
 </template>
 
 <script setup>
-import { defineExpose, nextTick, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useI18n } from "vue-i18n";
-import { useState } from "@/utils";
+import { defineExpose, nextTick, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+import { useState } from '@/utils';
 
 const INITIAL_PAGECONFIG = { page: 1, total: 1, pageSize: 10 };
 const PAGE_SIZES = [10, 100, 200, 300, 500, 1000];
