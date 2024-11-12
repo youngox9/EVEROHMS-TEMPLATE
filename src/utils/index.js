@@ -31,7 +31,7 @@ export const VALIDATIONS = {
     validator: async (rule, value, callback) => {
       const { validator, form, keys = [] } = props;
       const isPass = keys.some((k) => {
-        return !!form?.value?.[k];
+        return !!`${form?.value?.[k]}`;
       });
       if (!isPass) {
         const errorText = keys.map((o) => t(o)).join(',');
@@ -165,31 +165,18 @@ export function sumNumbers(numbers = []) {
 }
 
 export const getSummaries = (param) => {
-  const {
-    columns,
-    data,
-    totalText = 'Total Cost',
-    onlyShowKeys = null,
-  } = param;
+  const { columns, data } = param;
 
   const result = columns.map((col, idx) => {
-    if (idx === 0) return totalText;
+    if (idx === 0) return 'Total';
 
     const key = columns?.[idx]?.property || '';
 
-    const isOnlyShowKey = onlyShowKeys
-      ? onlyShowKeys.length >= 0 && onlyShowKeys.includes(key)
-      : true;
-
-    const needShowTotal =
-      isOnlyShowKey &&
-      !data.some((o) => {
-        const v = o?.[key];
-        const res = v && !/^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$/.test(v);
-        return res;
-      });
-
-    console.log(key, isOnlyShowKey);
+    const needShowTotal = !data.some((o) => {
+      const v = o?.[key];
+      const res = v && !/^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$/.test(v);
+      return res;
+    });
 
     if (!needShowTotal) return '-';
     if (key) {
@@ -252,9 +239,8 @@ export function saveExcel(res, filename = getTempFilename()) {
   const disposition = res?.headers?.['content-disposition'];
 
   if (disposition) {
-    const regex = /attachment; filename=(.*)/;
-    const match = disposition.match(regex);
-    const headerFileName = match ? match[1] : '';
+    var regex = /filename=([^\s]+)/;
+    const headerFileName = regex.exec(disposition)?.[1];
     if (headerFileName) {
       newFilename = headerFileName;
     }
@@ -290,7 +276,7 @@ export function getTempFilename() {
   // console.log(router?.currentRoute?.value?.path);
   const pathname = router?.currentRoute?.value?.path || '';
   try {
-    return `${pathname.replace(/[^a-zA-Z0-9 ]/g, '') || 'test'}_${moment(
+    return `${pathname.replace(/[^a-zA-Z0-9 ]/g, '') || ''}_${moment(
       new Date()
     ).format('YYYYMMDDHHmmss')}.xlsx`;
   } catch (e) {
@@ -303,7 +289,7 @@ export function getTempFilename() {
  * @param {} str
  * @returns
  */
-function isNumeric(str) {
+export function isNumeric(str) {
   // 使用正則表達式來判斷字串是否為數字
   // 正整數或負整數或正浮點數或負浮點數
   const numericRegex = /^[-+]?\d+(\.\d+)?$/;
@@ -313,38 +299,56 @@ function isNumeric(str) {
  * pure front export excel
  */
 export const jsonToExcel = (list, filename = getTempFilename()) => {
-  const WHITE_LIST = ['IMAA128', '型別', '捲標', '盒標', '箱標'];
-  const STRING_LIST = [
-    'REEL_ID',
-    'SFBA020',
-    'DELIVERY_DATE',
-    'START_DATE',
-    'IMAA003',
-    'VENDOR',
-    'POLIST',
-    'PRODUCECYCLE',
+  const WHITE_LIST = [
+    'IMAA128',
+    '型別',
+    '阻值上限不包含',
+    '阻值下限含',
+    'SFAAPAR002',
+    'SFAAPAR003',
+    'SFAAPAR004',
+    'SFAAPAR007',
+    'SFAAPAR008',
   ];
+  const NUMBER_LIST = ['IPCA014', 'IPCA027', 'OOCQUD011'];
   const $t = i18n.global.t;
   if (!list?.length) return;
 
+  // 將白名單項目翻譯為目標語言
+  const translatedWhiteList = WHITE_LIST.map((k) => $t(k));
+  const translatedNumberList = NUMBER_LIST.map((k) => $t(k));
+
   const temp = list.map((obj) => {
-    const newObj = Object.keys(obj).reduce((prev, k) => {
-      // Check if the key is in the STRING_LIST, if so, force it to be a string
-      if (STRING_LIST.includes(k)) {
-        return { ...prev, [$t(k)]: `${obj[k]}` };
+    return Object.keys(obj).reduce((prev, k) => {
+      let val = obj[k];
+
+      // 如果不在白名單中，並且是數字，則轉換為數字類型
+      if (!translatedWhiteList.includes($t(k)) && isNumeric(val)) {
+        val = Number(val);
       }
-      // If the key is not in the WHITE_LIST, and the value is numeric, parse it as a number
-      const isNum = isNumeric(obj[k]) && !WHITE_LIST.includes(k);
-      const val = isNum ? +obj[k] : obj[k];
+
       return { ...prev, [$t(k)]: val };
     }, {});
-    return newObj;
   });
 
   const cols = Object.keys(temp?.[0]);
-  var ws = XLSX.utils.json_to_sheet(temp, {
-    header: [...cols],
-  });
+
+  var ws = XLSX.utils.json_to_sheet(temp, { header: cols });
+
+  // 只針對 NUMBER_LIST 中的欄位設定單元格格式
+  for (let row = 1; row <= temp.length; row++) {
+    for (let col = 0; col < cols.length; col++) {
+      const colName = cols[col];
+      if (translatedNumberList.includes(colName)) {
+        const cell = ws[XLSX.utils.encode_cell({ c: col, r: row })];
+        if (cell && !isNaN(cell.v)) {
+          cell.t = 'n'; // 設定單元格類型為數字
+          cell.z = XLSX.SSF.get_table()[0]; // 預設的數字格式
+        }
+      }
+    }
+  }
+
   const wb = XLSX.utils.book_new();
 
   // 自動調整欄位寬度
@@ -353,7 +357,7 @@ export const jsonToExcel = (list, filename = getTempFilename()) => {
       ...temp.map((obj) => `${obj[col]}`.length),
       col.length
     );
-    return { width: maxCharLength + 5 };
+    return { width: maxCharLength + 1 }; // +1 是為了確保有一些空間
   });
 
   const borderStyle = {
@@ -375,10 +379,11 @@ export const jsonToExcel = (list, filename = getTempFilename()) => {
     }
   }
 
-  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-
+  XLSX.utils.book_append_sheet(wb, ws, 'Data');
   XLSXStyle.writeFile(wb, filename, { compression: true });
+  //XLSX.writeFileXLSX(wb, filename, { compression: true });
 };
+
 export const printPage = (name = '') => {
   if (window?.close) {
     const pathname = router?.currentRoute?.value?.path || '';
@@ -454,14 +459,17 @@ export function disableBeforeToday(val) {
   return result;
 }
 
-export function getMonth() {
-  return moment(new Date()).subtract(90, 'days').format('YYYY-MM-DD');
+// 验证是否为数字的函数
+export function checkIfNumber(rule, value, callback) {
+  if (value === '' || value === undefined || value === null) {
+    // 如果欄位是空的，這裡不檢查，因為你已經有 isEmpty 來檢查空值
+    callback();
+  } else if (!/^\d+(\.\d+)?$/.test(value)) {
+    // 這個正則表達式檢查值是否為數字（整數或小數）
+    return callback(new Error('WEIGHT 必須是數字'));
+  } else {
+    callback(); // 如果通過驗證，則不返回錯誤
+  }
 }
 
 export const DATETIME_FORMAT = 'YYYY-MM-DD HH:mm';
-
-export async function asyncForEach(array, callback) {
-  for (let index = 0; index < array.length; index++) {
-    await callback(array[index], index, array);
-  }
-}
