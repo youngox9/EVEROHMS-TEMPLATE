@@ -34,23 +34,35 @@
       </div>
       <el-divider />
       <div class="profile-menu">
-        <el-button plain type="primary" @click="setModalOpen(!modalOpen.value)">
-          {{ $t("change_password") }}
+        <el-button
+          plain
+          type="primary"
+          @click="() => (modal1Open = !modal1Open)"
+        >
+          {{ $t('change_password') }}
+        </el-button>
+        <el-button
+          plain
+          type="warning"
+          @click="() => (modal2Open = !modal2Open)"
+        >
+          {{ $t('change_short_id') }}
         </el-button>
         <el-button size="small" link @click="logout()">
-          {{ $t("logout") }}
+          {{ $t('logout') }}
         </el-button>
       </div>
     </div>
   </el-popover>
-  <PasswordModal v-model="modalOpen" />
+  <PasswordModal v-model="modal1Open" />
+  <ShortIDModal v-model="modal2Open" />
 </template>
 
 <script setup>
-import { useStore } from "vuex";
-import { ref, unref, computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useState } from "@/utils";
+import { useStore } from 'vuex';
+import { ref, unref, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useState } from '@/utils';
 import {
   GlobalButton,
   ErrorListButton,
@@ -59,13 +71,16 @@ import {
   AreaButton,
   OnlinePeopleButton,
   ProfileButton,
-} from "@/components/Navbar";
+} from '@/components/Navbar';
 
-import PasswordModal from "./PasswordModal.vue";
+import PasswordModal from './PasswordModal.vue';
+import ShortIDModal from './ShortIDModal.vue';
 
 const store = useStore();
 const router = useRouter();
-const [modalOpen, setModalOpen] = useState(false);
+// const [modalOpen, setModalOpen] = useState(false);
+const [modal1Open] = useState(false);
+const [modal2Open] = useState(false);
 
 const profile = computed(() => {
   return store?.state?.global?.profile || {};
@@ -75,7 +90,7 @@ const buttonRef = ref();
 const popoverRef = ref();
 
 function logout() {
-  store.commit("global/logout");
-  router.push({ name: "login" });
+  store.commit('global/logout');
+  router.push({ name: 'login' });
 }
 </script>
