@@ -20,3 +20,5 @@ yarn.lock
 docker-compose.yml
 docker-compose.yml
 deploy.ps1
+deploy.bat
+
